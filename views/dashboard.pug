@@ -26,11 +26,8 @@ block content
               h4.text-sm.font-bold.text-gray-500.uppercase.tracking-wider.mb-3 Habitación #{habitacion.Numero} (Capacidad: #{habitacion.Capacidad})
               div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4")
                 each cama in habitacion.Camas
-                  - var episodio = (cama.Episodios && cama.Episodios.length > 0) ? cama.Episodios[0] : null;
-                  - var pacienteNombre = episodio ? `${episodio.Paciente.Nombre || 'NN'} ${episodio.Paciente.Apellido || ''}`.trim() : '';
-                  - var idEp = episodio ? episodio.IdEpisodio : '';
-                  - var motivo = episodio ? (episodio.MotivoInternacion || 'Sin motivo registrado') : '';
-                  +camaCard(cama.IdCama, cama.NumeroCama, cama.Estado, pacienteNombre, idEp, motivo)
+                  - var pacienteNombre = (cama.Episodios && cama.Episodios.length > 0) ? `${cama.Episodios[0].Paciente.Nombre || 'NN'} ${cama.Episodios[0].Paciente.Apellido || ''}`.trim() : null;
+                  +camaCard(cama.IdCama, cama.NumeroCama, cama.Estado, pacienteNombre)
     else
       div.bg-yellow-50.border.border-yellow-200.p-6.rounded-xl.text-yellow-700
         p No hay infraestructura hospitalaria configurada.
@@ -51,11 +48,8 @@ block content
               h4.text-sm.font-bold.text-gray-500.uppercase.tracking-wider.mb-3 Habitación #{habitacion.Numero} (Capacidad: #{habitacion.Capacidad})
               div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4")
                 each cama in habitacion.Camas
-                  - var episodio = (cama.Episodios && cama.Episodios.length > 0) ? cama.Episodios[0] : null;
-                  - var pacienteNombre = episodio ? `${episodio.Paciente.Nombre || 'NN'} ${episodio.Paciente.Apellido || ''}`.trim() : '';
-                  - var idEp = episodio ? episodio.IdEpisodio : '';
-                  - var motivo = episodio ? (episodio.MotivoInternacion || 'Sin motivo registrado') : '';
-                  +camaCard(cama.IdCama, cama.NumeroCama, cama.Estado, pacienteNombre, idEp, motivo)
+                  - var pacienteNombre = (cama.Episodios && cama.Episodios.length > 0) ? `${cama.Episodios[0].Paciente.Nombre || 'NN'} ${cama.Episodios[0].Paciente.Apellido || ''}`.trim() : null;
+                  +camaCard(cama.IdCama, cama.NumeroCama, cama.Estado, pacienteNombre)
     else
       div.bg-yellow-50.border.border-yellow-200.p-6.rounded-xl.text-yellow-700
         p No hay infraestructura hospitalaria configurada.

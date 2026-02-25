@@ -105,7 +105,6 @@ app.use('/api/infraestructura', infraestructuraRoutes);
 app.use('/api/episodios', episodioRoutes);
 app.use('/api/enfermeria', enfermeriaRoutes);
 app.use('/api/medico', medicoRoutes);
-app.use('/api/pacientes', pacienteRoutes);
 // Rutas visuales
 app.use('/', viewRoutes);
 // Ruta pública de bienvenida

@@ -3,8 +3,8 @@ mixin sidebarItem(icono, texto, link, activo=false)
     span.text-xl= icono
     span.text-sm= texto
 
-mixin camaCard(idCama, numero, estado, paciente='', idEpisodio='', motivo='')
-  - var clickAction = estado === 'EnLimpieza' ? `marcarLimpia('${idCama}')` : `abrirPanelCama('${idCama}', '${estado}', '${paciente}', '${idEpisodio}', '${motivo}')`
+mixin camaCard(idCama, numero, estado, paciente=null)
+  - var clickAction = estado === 'EnLimpieza' ? `marcarLimpia('${idCama}')` : `abrirPanelCama('${idCama}', '${estado}')`
   div(onclick=clickAction class=`border rounded-xl p-4 shadow-sm hover:shadow-md transition cursor-pointer ${estado === 'Libre' ? 'bg-white border-green-200' : estado === 'Ocupada' ? 'bg-blue-50 border-blue-200' : 'bg-yellow-50 border-yellow-200'}`)
     div.flex.justify-between.items-start.mb-2
       span.font-bold.text-gray-700 Cama #{numero}
