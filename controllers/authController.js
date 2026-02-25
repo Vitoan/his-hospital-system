@@ -2,6 +2,20 @@ const Usuario = require('../models/Usuario');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const registrarAdminTemporal = async (req, res) => {
+    try {
+        // Creamos un admin por defecto
+        const nuevoUsuario = await Usuario.create({
+            Username: 'admin_general',
+            PasswordHash: 'hospital123', // Sequelize lo encriptará automáticamente gracias a nuestro Hook
+            Rol: 'Admin'
+        });
+        res.status(201).json({ mensaje: 'Admin creado con éxito', usuario: nuevoUsuario.Username });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 const login = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -49,22 +63,28 @@ const logout = (req, res) => {
     res.status(200).json({ mensaje: 'Sesión cerrada' });
 };
 
-router.post('/register', async (req, res) => {
+const register = async (req, res) => {
     try {
         const { username, password, rol } = req.body;
-
-        // Crear un nuevo usuario con contraseña encriptada
+        
         const nuevoUsuario = await Usuario.create({
             Username: username,
-            PasswordHash: password, // La encriptación se hace automáticamente en el hook de Usuario
-            Rol: rol
+            PasswordHash: password, // Sequelize lo encriptará mágicamente
+            Rol: rol || 'Admin' // Si no le mandas rol, por defecto será Admin
         });
-
-        res.status(201).json({ mensaje: 'Usuario registrado exitosamente', usuario: nuevoUsuario });
+        
+        res.status(201).json({ 
+            mensaje: 'Usuario creado con éxito', 
+            usuario: nuevoUsuario.Username 
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ mensaje: 'Error al registrar el usuario' });
+        res.status(500).json({ error: error.message });
     }
-});
+};
 
-module.exports = { login, logout };
+module.exports = { 
+    login, 
+    logout, 
+    registrarAdminTemporal, 
+    register 
+};
