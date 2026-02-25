@@ -49,4 +49,22 @@ const logout = (req, res) => {
     res.status(200).json({ mensaje: 'Sesión cerrada' });
 };
 
+router.post('/register', async (req, res) => {
+    try {
+        const { username, password, rol } = req.body;
+
+        // Crear un nuevo usuario con contraseña encriptada
+        const nuevoUsuario = await Usuario.create({
+            Username: username,
+            PasswordHash: password, // La encriptación se hace automáticamente en el hook de Usuario
+            Rol: rol
+        });
+
+        res.status(201).json({ mensaje: 'Usuario registrado exitosamente', usuario: nuevoUsuario });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error al registrar el usuario' });
+    }
+});
+
 module.exports = { login, logout };
