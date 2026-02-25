@@ -48,8 +48,7 @@ block content
   else if busqueda
     div.bg-red-50.border.border-red-200.p-6.rounded-xl.text-red-600.text-center
       p.font-bold No se encontró ningún paciente con el DNI "#{busqueda}".
-       - var accionFormulario = "mostrarFormularioPaciente('', '" + busqueda + "', '', '', '', '')"
-      button(onclick=accionFormulario class="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition") + Registrar Nuevo Paciente
+      button.mt-3.bg-red-600.text-white.px-4.py-2.rounded-lg.font-bold + Registrar Nuevo Paciente
 
   else
     div.text-center.py-16

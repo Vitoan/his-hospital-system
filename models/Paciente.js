@@ -10,12 +10,12 @@ const Paciente = sequelize.define('Paciente', {
     IdUsuario: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        
+        unique: true // Relación 1 a 1 opcional con la tabla Usuario
     },
     DNI: {
         type: DataTypes.STRING(15),
         allowNull: true,
-         
+        unique: true
     },
     Nombre: {
         type: DataTypes.STRING(100),

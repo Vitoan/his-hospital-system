@@ -130,34 +130,14 @@ sequelize.authenticate()
         console.log('✅ Conexión a MySQL (XAMPP) exitosa.');
         
         // { alter: true } aplica los cambios (nuevas columnas, foreign keys) sin borrar los datos existentes
-        return sequelize.sync({ alter: true }) // o { force: true } si lo habías cambiado
-  .then(async () => {
-      console.log('✅ Base de datos sincronizada correctamente.');
-
-      // Buscamos si ya existe el admin
-      const adminExiste = await Usuario.findOne({ where: { Username: 'admin@hospital.com' } });
-      
-      // Si no existe, lo creamos
-      if (!adminExiste) {
-          await Usuario.create({
-              Username: 'admin@hospital.com',
-              PasswordHash: 'admin123', // Contraseña fácil para pruebas
-              Rol: 'Admin',
-              Activo: true
-          });
-          console.log('🔑 Usuario Maestro creado con éxito:');
-          console.log('   - Correo: admin@hospital.com');
-          console.log('   - Clave: admin123');
-      }
-
-      // Arrancamos el servidor web
-      app.listen(3000, () => {
-          console.log('🚀 Servidor corriendo en http://localhost:3000');
-      });
-  })
-  .catch(error => {
-      console.error('❌ Error al conectar con la base de datos:', error);
-  });})
-    .catch(error => {
-        console.error('❌ Error al conectar a MySQL (XAMPP):', error);
-    }); 
+        return sequelize.sync({ alter: true }); 
+    })
+    .then(() => {
+        console.log('✅ Base de datos sincronizada y lista con todas las relaciones relacionales.');
+        app.listen(PORT, () => {
+            console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.error('❌ Error fatal al conectar o sincronizar la base de datos:', err);
+    });
