@@ -25,6 +25,8 @@ const episodioRoutes = require('./routes/episodioRoutes');
 const enfermeriaRoutes = require('./routes/enfermeriaRoutes');
 const medicoRoutes = require('./routes/medicoRoutes');
 const SolicitudEstudio = require('./models/SolicitudEstudio');
+// Importar rutas visuales
+const viewRoutes = require('./routes/viewRoutes');
 
 
 
@@ -40,6 +42,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('public'));
+app.set('view engine', 'pug');
+app.set('views', './views');
 
 
 // =========================================================
@@ -101,6 +105,8 @@ app.use('/api/infraestructura', infraestructuraRoutes);
 app.use('/api/episodios', episodioRoutes);
 app.use('/api/enfermeria', enfermeriaRoutes);
 app.use('/api/medico', medicoRoutes);
+// Rutas visuales
+app.use('/', viewRoutes);
 // Ruta pública de bienvenida
 app.get('/', (req, res) => {
     res.send('🏥 ¡Bienvenido a la API del Sistema de Información Hospitalaria (HIS)!');
