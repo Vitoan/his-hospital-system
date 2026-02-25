@@ -55,27 +55,4 @@ const inicializarInfraestructura = async (req, res) => {
     }
 };
 
-// Función para limpiar la cama
-const habilitarCama = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        // IMPORTANTE: Asegúrate de tener Cama importado arriba en este archivo (const Cama = require('../models/Cama');)
-        const cama = await Cama.findByPk(id);
-        
-        if (!cama) {
-            return res.status(404).json({ error: 'Cama no encontrada.' });
-        }
-        if (cama.Estado !== 'EnLimpieza') {
-            return res.status(400).json({ error: 'Esta cama no está marcada para limpieza.' });
-        }
-
-        await cama.update({ Estado: 'Libre' });
-        res.status(200).json({ mensaje: 'Cama limpiada exitosamente.' });
-
-    } catch (error) {
-        res.status(500).json({ error: 'Error interno: ' + error.message });
-    }
-};
-
-module.exports = { obtenerMapaCamas, inicializarInfraestructura, habilitarCama };
+module.exports = { obtenerMapaCamas, inicializarInfraestructura };
