@@ -56,7 +56,9 @@ html(lang="es")
       div#panelContent.flex-1.overflow-y-auto.p-6
       div#panelFooter.p-6.border-t.border-gray-200.bg-gray-50
 
+ 
     script.
+      
       async function marcarLimpia(idCama) {
         if(confirm("¿Confirmas que la cama está limpia y lista para un nuevo paciente?")) {
           try {
@@ -64,15 +66,9 @@ html(lang="es")
               method: 'POST',
               headers: { 'Content-Type': 'application/json' }
             });
-            if(response.ok) {
-              window.location.reload(); 
-            } else {
-              const data = await response.json();
-              alert(data.error || "Error al limpiar la cama");
-            }
-          } catch(error) {
-            alert("Error de conexión");
-          }
+            if(response.ok) { window.location.reload(); } 
+            else { alert((await response.json()).error || "Error al limpiar"); }
+          } catch(error) { alert("Error de conexión"); }
         }
       }
 
@@ -88,18 +84,8 @@ html(lang="es")
         title.innerText = `Gestión - Cama ${idCama}`;
 
         if (estado === 'Libre') {
-          content.innerHTML = `
-            <div class="text-center mt-10">
-              <div class="text-6xl mb-6">🛏️</div>
-              <h3 class="text-2xl font-bold text-gray-800">Cama Disponible</h3>
-              <p class="text-gray-500 mt-2">Esta cama está lista y sanitizada para recibir a un nuevo paciente.</p>
-            </div>
-          `;
-          footer.innerHTML = `
-            <button class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-sm" onclick="mostrarFormularioInternacion('${idCama}')">
-              + Internar Paciente
-            </button>
-          `;
+          content.innerHTML = `<div class="text-center mt-10"><div class="text-6xl mb-6">🛏️</div><h3 class="text-2xl font-bold text-gray-800">Cama Disponible</h3></div>`;
+          footer.innerHTML = `<button class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition" onclick="mostrarFormularioInternacion('${idCama}')">+ Internar Paciente</button>`;
         } else if (estado === 'Ocupada') {
           content.innerHTML = `
             <div class="border border-blue-100 bg-blue-50 p-5 rounded-xl mb-6">
@@ -108,309 +94,91 @@ html(lang="es")
               <p class="text-sm text-gray-700"><b>Motivo:</b> ${motivo}</p>
             </div>
             <div class="space-y-3">
-              <button class="w-full text-left px-5 py-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition flex items-center justify-between group" onclick="mostrarFormularioSignos('${idEpisodio}', '${pacienteNombre}')">
-                <div class="flex items-center">
-                  <span class="text-2xl mr-3">🩺</span>
-                  <span class="font-bold text-gray-700 group-hover:text-blue-600 transition">Tomar Signos Vitales</span>
-                </div>
-                <span class="text-gray-400 font-bold group-hover:text-blue-600">→</span>
-              </button>
-              
-              <button class="w-full text-left px-5 py-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition flex items-center justify-between group" onclick="mostrarFormularioEvolucion('${idEpisodio}', '${pacienteNombre}')">
-                <div class="flex items-center">
-                  <span class="text-2xl mr-3">📝</span>
-                  <span class="font-bold text-gray-700 group-hover:text-blue-600 transition">Escribir Evolución Médica</span>
-                </div>
-                <span class="text-gray-400 font-bold group-hover:text-blue-600">→</span>
-              </button>
+              <button class="w-full text-left px-5 py-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition flex justify-between" onclick="mostrarFormularioSignos('${idEpisodio}', '${pacienteNombre}')"><span class="font-bold text-gray-700">🩺 Tomar Signos Vitales</span></button>
+              <button class="w-full text-left px-5 py-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition flex justify-between" onclick="mostrarFormularioEvolucion('${idEpisodio}', '${pacienteNombre}')"><span class="font-bold text-gray-700">📝 Escribir Evolución Médica</span></button>
             </div>
           `;
-          footer.innerHTML = `
-            <button class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl hover:bg-red-100 transition" onclick="mostrarFormularioAlta('${idEpisodio}', '${pacienteNombre}')">
-              Dar de Alta al Paciente
-            </button>
-          `;
+          footer.innerHTML = `<button class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl hover:bg-red-100 transition" onclick="mostrarFormularioAlta('${idEpisodio}', '${pacienteNombre}')">Dar de Alta al Paciente</button>`;
         }
       }
 
+       
       function mostrarFormularioInternacion(idCama) {
+         
+      }
+      
+       
+      function mostrarFormularioPaciente(idPaciente, dni, nombre, apellido, telefono, obraSocial) {
         const content = document.getElementById('panelContent');
         const footer = document.getElementById('panelFooter');
         const title = document.getElementById('panelTitle');
-        title.innerText = "Nueva Internación";
+        const backdrop = document.getElementById('slideOverBackdrop');
+        const panel = document.getElementById('slideOverPanel');
+
+        backdrop.classList.remove('hidden');
+        setTimeout(() => { panel.classList.remove('translate-x-full'); }, 10);
+
+        const esEdicion = idPaciente !== '' && idPaciente !== 'undefined';
+        title.innerText = esEdicion ? "Editar Datos del Paciente" : "Registrar Nuevo Paciente";
+
         content.innerHTML = `
           <div class="mb-6 border-b border-gray-100 pb-4">
-            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold">Asignación</p>
-            <p class="text-lg font-bold text-gray-900">Cama Seleccionada: ${idCama}</p>
+            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold">Ficha Filiatoria</p>
           </div>
-          <form id="formInternacion" onsubmit="guardarInternacion(event, '${idCama}')" class="space-y-4">
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">ID del Paciente</label>
-              <input type="number" id="IdPaciente" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Origen de la Internación</label>
-              <select id="Origen" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <option value="Guardia">Guardia</option>
-                <option value="Consultorio">Consultorio Externo</option>
-                <option value="Derivacion">Derivación</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Motivo de Internación</label>
-              <textarea id="MotivoInternacion" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" rows="2" required></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Prioridad (Triage)</label>
-              <select id="PrioridadTriage" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <option value="Normal">Normal</option>
-                <option value="Urgencia">Urgencia</option>
-                <option value="Emergencia">Emergencia</option>
-              </select>
-            </div>
-            <button type="submit" class="hidden" id="btnSubmitInternacion"></button>
-          </form>
-        `;
-        footer.innerHTML = `
-          <div class="flex gap-3">
-            <button class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition" onclick="cerrarPanel()">Cancelar</button>
-            <button class="w-2/3 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition" onclick="document.getElementById('btnSubmitInternacion').click()">Confirmar</button>
-          </div>
-        `;
-      }
-
-      async function guardarInternacion(event, idCama) {
-        event.preventDefault();
-        const payload = {
-          IdPaciente: document.getElementById('IdPaciente').value,
-          IdCama: idCama,
-          Origen: document.getElementById('Origen').value,
-          MotivoInternacion: document.getElementById('MotivoInternacion').value,
-          PrioridadTriage: document.getElementById('PrioridadTriage').value
-        };
-        try {
-          const response = await fetch('/api/episodios/internar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if(response.ok) {
-            window.location.reload();
-          } else {
-            const data = await response.json();
-            alert(data.error || 'Error al internar');
-          }
-        } catch(error) {
-          alert('Error de conexión');
-        }
-      }
-
-      function mostrarFormularioSignos(idEpisodio, pacienteNombre) {
-        const content = document.getElementById('panelContent');
-        const footer = document.getElementById('panelFooter');
-        const title = document.getElementById('panelTitle');
-        title.innerText = "Nuevos Signos Vitales";
-        content.innerHTML = `
-          <div class="mb-6 border-b border-gray-100 pb-4">
-            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold">Paciente</p>
-            <p class="text-lg font-bold text-gray-900">${pacienteNombre}</p>
-          </div>
-          <form id="formSignos" onsubmit="guardarSignosVitales(event, '${idEpisodio}')" class="space-y-4">
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Presión Arterial</label>
-              <input type="text" id="PresionArterial" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-            </div>
+          <form id="formPaciente" onsubmit="guardarPaciente(event, '${idPaciente}')" class="space-y-4">
+            <div><label class="block text-sm font-bold text-gray-700 mb-1">DNI</label><input type="text" id="PacienteDni" class="w-full border border-gray-300 rounded-lg px-3 py-2" value="${dni || ''}" required></div>
             <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Frec. Cardíaca</label>
-                <input type="number" id="FrecuenciaCardiaca" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-              </div>
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Temp (°C)</label>
-                <input type="number" step="0.1" id="Temperatura" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-              </div>
+              <div><label class="block text-sm font-bold text-gray-700 mb-1">Nombre</label><input type="text" id="PacienteNombre" class="w-full border border-gray-300 rounded-lg px-3 py-2" value="${nombre || ''}" required></div>
+              <div><label class="block text-sm font-bold text-gray-700 mb-1">Apellido</label><input type="text" id="PacienteApellido" class="w-full border border-gray-300 rounded-lg px-3 py-2" value="${apellido || ''}" required></div>
             </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Frec. Respiratoria</label>
-              <input type="number" id="FrecuenciaRespiratoria" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Síntomas Principales</label>
-              <textarea id="SintomasPrincipales" class="w-full border border-gray-300 rounded-lg px-3 py-2" rows="2" required></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Aspecto General</label>
-              <textarea id="AspectoGeneral" class="w-full border border-gray-300 rounded-lg px-3 py-2" rows="2" required></textarea>
-            </div>
-            <button type="submit" class="hidden" id="btnSubmitSignos"></button>
+            <div><label class="block text-sm font-bold text-gray-700 mb-1">Teléfono</label><input type="text" id="PacienteTelefono" class="w-full border border-gray-300 rounded-lg px-3 py-2" value="${telefono || ''}"></div>
+            <div><label class="block text-sm font-bold text-gray-700 mb-1">Obra Social</label><input type="text" id="PacienteObraSocial" class="w-full border border-gray-300 rounded-lg px-3 py-2" value="${obraSocial || ''}"></div>
+            <button type="submit" class="hidden" id="btnSubmitPaciente"></button>
           </form>
         `;
-        footer.innerHTML = `
-          <div class="flex gap-3">
-            <button class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition" onclick="cerrarPanel()">Cancelar</button>
-            <button class="w-2/3 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-sm" onclick="document.getElementById('btnSubmitSignos').click()">Guardar Registro</button>
-          </div>
-        `;
-      }
-
-      async function guardarSignosVitales(event, idEpisodio) {
-        event.preventDefault();
-        const payload = {
-          IdEpisodio: idEpisodio,
-          PresionArterial: document.getElementById('PresionArterial').value,
-          FrecuenciaCardiaca: document.getElementById('FrecuenciaCardiaca').value,
-          Temperatura: document.getElementById('Temperatura').value,
-          FrecuenciaRespiratoria: document.getElementById('FrecuenciaRespiratoria').value,
-          SintomasPrincipales: document.getElementById('SintomasPrincipales').value,
-          AspectoGeneral: document.getElementById('AspectoGeneral').value,
-          MotivoInternacion: "Control de rutina"
-        };
-        try {
-          const response = await fetch('/api/enfermeria/evaluacion', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if(response.ok) {
-            alert('¡Signos vitales guardados con éxito!');
-            cerrarPanel();
-          } else {
-            const data = await response.json();
-            alert(data.error || 'Error al guardar');
-          }
-        } catch(error) {
-          alert('Error de conexión');
-        }
-      }
-
-      // ==========================================
-      // NUEVO: FORMULARIO DE EVOLUCIÓN MÉDICA
-      // ==========================================
-      function mostrarFormularioEvolucion(idEpisodio, pacienteNombre) {
-        const content = document.getElementById('panelContent');
-        const footer = document.getElementById('panelFooter');
-        const title = document.getElementById('panelTitle');
-        title.innerText = "Evolución Médica";
         
-        content.innerHTML = `
-          <div class="mb-6 border-b border-gray-100 pb-4">
-            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold">Paciente</p>
-            <p class="text-lg font-bold text-gray-900">${pacienteNombre}</p>
-          </div>
-          <form id="formEvolucion" onsubmit="guardarEvolucion(event, '${idEpisodio}')" class="space-y-4">
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Evolución Clínica</label>
-              <textarea id="TextoEvolucion" class="w-full border border-gray-300 rounded-lg px-3 py-2" rows="4" placeholder="Describa el progreso del paciente..." required></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Indicaciones / Plan a seguir</label>
-              <textarea id="Indicaciones" class="w-full border border-gray-300 rounded-lg px-3 py-2" rows="3" placeholder="Medicamentos, estudios solicitados, etc."></textarea>
-            </div>
-            <button type="submit" class="hidden" id="btnSubmitEvolucion"></button>
-          </form>
-        `;
         footer.innerHTML = `
           <div class="flex gap-3">
             <button class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition" onclick="cerrarPanel()">Cancelar</button>
-            <button class="w-2/3 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-sm" onclick="document.getElementById('btnSubmitEvolucion').click()">Guardar Evolución</button>
+            <button class="w-2/3 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition" onclick="document.getElementById('btnSubmitPaciente').click()">
+              ${esEdicion ? 'Guardar Cambios' : 'Registrar Paciente'}
+            </button>
           </div>
         `;
       }
 
-      async function guardarEvolucion(event, idEpisodio) {
+      async function guardarPaciente(event, idPaciente) {
         event.preventDefault();
         const payload = {
-          IdEpisodio: idEpisodio,
-          // CAMBIO AQUÍ: Usamos el nombre exacto que espera la base de datos
-          EvolucionDetallada: document.getElementById('TextoEvolucion').value, 
-          Indicaciones: document.getElementById('Indicaciones').value
+          Dni: document.getElementById('PacienteDni').value,
+          Nombre: document.getElementById('PacienteNombre').value,
+          Apellido: document.getElementById('PacienteApellido').value,
+          Telefono: document.getElementById('PacienteTelefono').value,
+          ObraSocial: document.getElementById('PacienteObraSocial').value
         };
-        try {
-          const response = await fetch('/api/medico/evolucion', { // Asegúrate de que apunte a tu ruta real
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if(response.ok) {
-            alert('¡Evolución guardada con éxito!');
-            cerrarPanel();
-          } else {
-            const data = await response.json();
-            alert(data.error || 'Error al guardar la evolución');
-          }
-        } catch(error) {
-          alert('Error de conexión');
-        }
-      }
-      // ==========================================
-      // NUEVO: FORMULARIO DE ALTA MÉDICA
-      // ==========================================
-      function mostrarFormularioAlta(idEpisodio, pacienteNombre) {
-        const content = document.getElementById('panelContent');
-        const footer = document.getElementById('panelFooter');
-        const title = document.getElementById('panelTitle');
-        title.innerText = "Alta Hospitalaria";
 
-        content.innerHTML = `
-          <div class="mb-6 border-b border-gray-100 pb-4">
-            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold">Paciente a dar de alta</p>
-            <p class="text-lg font-bold text-gray-900">${pacienteNombre}</p>
-          </div>
-          <div class="bg-red-50 border border-red-200 p-4 rounded-xl mb-6">
-            <p class="text-sm text-red-700"><b>Atención:</b> Dar de alta cerrará el episodio actual y la cama pasará a estado de limpieza.</p>
-          </div>
-          <form id="formAlta" onsubmit="procesarAlta(event, '${idEpisodio}')" class="space-y-4">
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Tipo de Alta</label>
-              <select id="TipoAlta" class="w-full border border-gray-300 rounded-lg px-3 py-2">
-                <option value="Medica">Alta Médica (Mejoría)</option>
-                <option value="Traslado">Traslado a otro centro</option>
-                <option value="Voluntaria">Alta Voluntaria</option>
-                <option value="Defuncion">Defunción</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1">Resumen / Epicrisis</label>
-              <textarea id="ResumenEpicrisis" class="w-full border border-gray-300 rounded-lg px-3 py-2" rows="4" placeholder="Resumen del cuadro clínico, tratamiento recibido y estado al alta..." required></textarea>
-            </div>
-            <button type="submit" class="hidden" id="btnSubmitAlta"></button>
-          </form>
-        `;
-        footer.innerHTML = `
-          <div class="flex gap-3">
-            <button class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-300 transition" onclick="cerrarPanel()">Cancelar</button>
-            <button class="w-2/3 bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition" onclick="document.getElementById('btnSubmitAlta').click()">Confirmar Alta</button>
-          </div>
-        `;
-      }
+        const esEdicion = idPaciente !== '' && idPaciente !== 'undefined';
+        const url = esEdicion ? `/api/pacientes/${idPaciente}` : '/api/pacientes';
+        const method = esEdicion ? 'PUT' : 'POST';
 
-      async function procesarAlta(event, idEpisodio) {
-        event.preventDefault();
-        const payload = {
-          // Ya no necesitamos enviar IdEpisodio aquí adentro porque va en la URL
-          TipoAlta: document.getElementById('TipoAlta').value,
-          ResumenEpicrisis: document.getElementById('ResumenEpicrisis').value
-        };
         try {
-          // ¡EL CAMBIO ESTÁ AQUÍ! Agregamos ${idEpisodio} a la URL
-          const response = await fetch(`/api/episodios/${idEpisodio}/alta`, {
-            method: 'POST',
+          const response = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
           
           if(response.ok) {
-            window.location.reload(); // Recarga y la cama quedará en Limpieza (Amarilla)
+            window.location.reload(); 
           } else {
             const data = await response.json();
-            alert(data.error || 'Error al procesar el alta');
+            alert(data.error || 'Error al guardar los datos');
           }
         } catch(error) {
-          alert('Error al leer la respuesta del servidor (Revisa la ruta)');
+          alert('Error de conexión. ¿Está la ruta registrada en app.js?');
           console.error(error);
         }
       }
-
       function cerrarPanel() {
         const backdrop = document.getElementById('slideOverBackdrop');
         const panel = document.getElementById('slideOverPanel');

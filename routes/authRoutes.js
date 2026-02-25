@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 
-// Rutas de autenticación
+// Ruta para procesar el formulario de Login
 router.post('/login', authController.login);
+
+// Ruta para procesar el botón rojo de Cerrar Sesión del menú lateral
 router.post('/logout', authController.logout);
-router.post('/instalar-admin', authController.registrarAdminTemporal);
-router.post('/register', authController.register); 
 
 module.exports = router;
