@@ -1,0 +1,141 @@
+include mixins.pug
+
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title HIS Pro V2.0
+    script(src="https://cdn.tailwindcss.com")
+  body.bg-slate-50.flex.h-screen.font-sans.overflow-hidden
+    aside.w-64.bg-white.border-r.border-gray-200.flex.flex-col.justify-between.flex-shrink-0
+      div
+        div.p-6.flex.items-center.gap-3.border-b.border-gray-100
+          div.bg-blue-600.text-white.w-8.h-8.rounded-lg.flex.items-center.justify-center.font-bold H
+          span.font-bold.text-xl.text-gray-800 HIS <span class="text-blue-600">Pro</span>
+        nav.p-4.flex.flex-col.gap-1
+          if usuario.rol !== 'Paciente'
+            +sidebarItem('🛏️', 'Mapa de Camas', '/dashboard', true)
+          if usuario.rol === 'Recepcionista' || usuario.rol === 'Admin'
+            +sidebarItem('📋', 'Admisiones y Turnos', '#')
+          if usuario.rol === 'Medico' || usuario.rol === 'Enfermero' || usuario.rol === 'Admin'
+            +sidebarItem('🩺', 'Pacientes Internados', '#')
+          if usuario.rol === 'Paciente'
+            +sidebarItem('📅', 'Mis Turnos', '#', true)
+            +sidebarItem('📁', 'Mi Historia Clínica', '#')
+          if usuario.rol === 'Admin'
+            div.my-2.border-t.border-gray-100
+            +sidebarItem('👥', 'Gestión de Personal', '#')
+            +sidebarItem('⚙️', 'Configuración', '#')
+      div.p-4.border-t.border-gray-200
+        div.flex.items-center.gap-3.mb-4
+          div.w-10.h-10.bg-slate-100.rounded-full.flex.items-center.justify-center.font-bold.text-slate-600 #{usuario.rol.charAt(0)}
+          div
+            p.text-sm.font-bold.text-gray-800= usuario.rol
+            p.text-xs.text-gray-500 ID: #{usuario.id}
+        form(action="/api/auth/logout" method="POST")
+          button.w-full.bg-red-50.text-red-600.text-sm.font-semibold.py-2.rounded-lg.hover_bg-red-100.transition(type="submit") Cerrar Sesión
+    
+    main.flex-1.flex.flex-col.h-screen.overflow-hidden
+      header.h-16.bg-white.border-b.border-gray-200.flex.items-center.justify-between.px-8.flex-shrink-0
+        h2.font-semibold.text-gray-700 Tablero Operativo
+        if usuario.rol !== 'Paciente'
+          div.relative
+            input.bg-slate-100.text-sm.rounded-full.px-4.py-2.w-64.focus_outline-none.focus_ring-2.focus_ring-blue-500(type="text" placeholder="🔍 Buscar paciente por DNI...")
+      div.flex-1.overflow-y-auto.p-8
+        block content
+        div.mt-12.text-center
+          p.text-xs.font-bold.text-gray-400.tracking-widest HIS SYSTEM V2.0
+
+    div#slideOverBackdrop.fixed.inset-0.bg-gray-900.bg-opacity-50.z-40.hidden.transition-opacity(onclick="cerrarPanel()")
+    div#slideOverPanel(class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col")
+      div.px-6.py-4.border-b.border-gray-200.flex.justify-between.items-center.bg-gray-50
+        h2#panelTitle.text-xl.font-bold.text-gray-800 Gestión Clínica
+        button.text-gray-400.text-3xl.font-bold.leading-none(onclick="cerrarPanel()" class="hover:text-gray-600") &times;
+      div#panelContent.flex-1.overflow-y-auto.p-6
+      div#panelFooter.p-6.border-t.border-gray-200.bg-gray-50
+
+    script.
+      async function marcarLimpia(idCama) {
+        if(confirm("¿Confirmas que la cama está limpia y lista para un nuevo paciente?")) {
+          try {
+            const response = await fetch(`/api/infraestructura/cama/${idCama}/limpia`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            if(response.ok) {
+              window.location.reload(); 
+            } else {
+              const data = await response.json();
+              alert(data.error || "Error al limpiar la cama");
+            }
+          } catch(error) {
+            console.error("Error:", error);
+            alert("Error de conexión");
+          }
+        }
+      }
+
+      function abrirPanelCama(idCama, estado) {
+        const backdrop = document.getElementById('slideOverBackdrop');
+        const panel = document.getElementById('slideOverPanel');
+        const title = document.getElementById('panelTitle');
+        const content = document.getElementById('panelContent');
+        const footer = document.getElementById('panelFooter');
+
+        backdrop.classList.remove('hidden');
+        setTimeout(() => { panel.classList.remove('translate-x-full'); }, 10);
+
+        title.innerText = `Gestión - Cama ${idCama}`;
+
+        if (estado === 'Libre') {
+          content.innerHTML = `
+            <div class="text-center mt-10">
+              <div class="text-6xl mb-6">🛏️</div>
+              <h3 class="text-2xl font-bold text-gray-800">Cama Disponible</h3>
+              <p class="text-gray-500 mt-2">Esta cama está lista y sanitizada para recibir a un nuevo paciente.</p>
+            </div>
+          `;
+          footer.innerHTML = `
+            <button class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-sm" onclick="alert('Próximamente: Formulario de internación')">
+              + Internar Paciente
+            </button>
+          `;
+        } else if (estado === 'Ocupada') {
+          content.innerHTML = `
+            <div class="border border-blue-100 bg-blue-50 p-5 rounded-xl mb-6">
+              <p class="text-xs text-blue-600 font-bold uppercase tracking-wide mb-1">Paciente Internado</p>
+              <h3 class="text-xl font-extrabold text-gray-900">Datos cargando...</h3>
+            </div>
+            <div class="space-y-3">
+              <button class="w-full text-left px-5 py-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition flex items-center justify-between group" onclick="alert('Próximamente: Cargar Signos')">
+                <div class="flex items-center">
+                  <span class="text-2xl mr-3">🩺</span>
+                  <span class="font-bold text-gray-700 group-hover:text-blue-600 transition">Tomar Signos Vitales</span>
+                </div>
+                <span class="text-gray-400 font-bold group-hover:text-blue-600">→</span>
+              </button>
+              <button class="w-full text-left px-5 py-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition flex items-center justify-between group" onclick="alert('Próximamente: Cargar Evolución')">
+                <div class="flex items-center">
+                  <span class="text-2xl mr-3">📝</span>
+                  <span class="font-bold text-gray-700 group-hover:text-blue-600 transition">Escribir Evolución Médica</span>
+                </div>
+                <span class="text-gray-400 font-bold group-hover:text-blue-600">→</span>
+              </button>
+            </div>
+          `;
+          footer.innerHTML = `
+            <button class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl hover:bg-red-100 transition" onclick="alert('Próximamente: Acción de Alta')">
+              Dar de Alta al Paciente
+            </button>
+          `;
+        }
+      }
+
+      function cerrarPanel() {
+        const backdrop = document.getElementById('slideOverBackdrop');
+        const panel = document.getElementById('slideOverPanel');
+        
+        panel.classList.add('translate-x-full');
+        setTimeout(() => { backdrop.classList.add('hidden'); }, 300);
+      }

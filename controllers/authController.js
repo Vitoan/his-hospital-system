@@ -47,20 +47,17 @@ const login = async (req, res) => {
             maxAge: 8 * 60 * 60 * 1000 // 8 horas en milisegundos
         });
 
-        res.status(200).json({ 
-            mensaje: 'Inicio de sesión exitoso',
-            rol: usuario.Rol // Le mandamos el rol al Frontend para que sepa qué dashboard cargar
-        });
+        res.redirect('/dashboard');
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ mensaje: 'Error interno del servidor' });
+        res.redirect('/login');
     }
 };
 
 const logout = (req, res) => {
     res.clearCookie('jwt'); // Borramos la cookie para cerrar sesión
-    res.status(200).json({ mensaje: 'Sesión cerrada' });
+    res.redirect('/login');
 };
 
 const register = async (req, res) => {
