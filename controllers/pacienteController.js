@@ -1,37 +1,45 @@
 const Paciente = require('../models/Paciente');
 
-// Crear un nuevo paciente (O un paciente NN)
 const crearPaciente = async (req, res) => {
     try {
-        const { DNI, Nombre, Apellido, FechaNacimiento, Sexo, Telefono, ContactoEmergencia, EsNN } = req.body;
+        const { Dni, Nombre, Apellido, Telefono, ObraSocial } = req.body;
+        
+        // 1. Verificamos si ya existe alguien con ese DNI
+        const existePaciente = await Paciente.findOne({ where: { Dni } });
+        if (existePaciente) {
+            return res.status(400).json({ error: 'Ya existe un paciente registrado con este DNI.' });
+        }
 
-        const nuevoPaciente = await Paciente.create({
-            DNI, Nombre, Apellido, FechaNacimiento, Sexo, Telefono, ContactoEmergencia, EsNN
+        // 2. Lo creamos en la base de datos
+        const nuevoPaciente = await Paciente.create({ 
+            Dni, Nombre, Apellido, Telefono, ObraSocial 
         });
-
-        res.status(201).json({
-            mensaje: 'Paciente registrado exitosamente',
-            paciente: nuevoPaciente
-        });
+        
+        res.status(201).json(nuevoPaciente);
     } catch (error) {
-        // Si falla la validación (ej. falta el DNI y no es NN), Sequelize lanza el error aquí
-        res.status(400).json({ error: error.message });
+        console.error("Error al crear paciente:", error);
+        res.status(500).json({ error: 'Error interno al crear el paciente.' });
     }
 };
 
-// Obtener todos los pacientes (O buscar por DNI si se envía por query)
-const obtenerPacientes = async (req, res) => {
+const actualizarPaciente = async (req, res) => {
     try {
-        const { dni } = req.query; // Ej: /api/pacientes?dni=12345678
+        const { id } = req.params;
+        const { Dni, Nombre, Apellido, Telefono, ObraSocial } = req.body;
         
-        // Si mandan un DNI por la URL, filtramos. Si no, traemos todos.
-        const condicion = dni ? { where: { DNI: dni } } : {};
-        
-        const pacientes = await Paciente.findAll(condicion);
-        res.status(200).json(pacientes);
+        // 1. Buscamos al paciente
+        const paciente = await Paciente.findByPk(id);
+        if (!paciente) {
+            return res.status(404).json({ error: 'Paciente no encontrado.' });
+        }
+
+        // 2. Lo actualizamos
+        await paciente.update({ Dni, Nombre, Apellido, Telefono, ObraSocial });
+        res.status(200).json({ mensaje: 'Paciente actualizado con éxito.' });
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener los pacientes' });
+        console.error("Error al actualizar paciente:", error);
+        res.status(500).json({ error: 'Error interno al actualizar los datos.' });
     }
 };
 
-module.exports = { crearPaciente, obtenerPacientes };
+module.exports = { crearPaciente, actualizarPaciente };

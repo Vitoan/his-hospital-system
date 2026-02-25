@@ -1,0 +1,37 @@
+extends layout.pug
+
+block content
+  div.flex.justify-between.items-end.mb-6
+    div
+      h1.text-3xl.font-extrabold.text-gray-900 Directorio de Pacientes
+      p.text-gray-500.mt-1 Gestión del padrón general del hospital.
+    
+    //- El botón llama directamente a la función del panel lateral que ya existe
+    button(onclick="mostrarFormularioPaciente('', '', '', '', '', '')" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 shadow-sm transition") + Nuevo Paciente
+
+  div.bg-white.border.border-gray-200.rounded-2xl.shadow-sm.overflow-hidden
+    table.w-full.text-left.border-collapse
+      thead.bg-gray-50.border-b.border-gray-200
+        tr
+          th.py-3.px-6.text-xs.font-bold.text-gray-500.uppercase.tracking-wider DNI
+          th.py-3.px-6.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Paciente
+          th.py-3.px-6.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Obra Social
+          th.py-3.px-6.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Teléfono
+          th.py-3.px-6.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Acciones
+      
+      tbody(class="divide-y divide-gray-100")
+        if pacientes && pacientes.length > 0
+          each p in pacientes
+            tr(class="hover:bg-gray-50 transition")
+              td.py-4.px-6.text-sm.font-bold.text-gray-700= p.Dni
+              td.py-4.px-6.text-sm.font-bold.text-gray-900 #{p.Apellido}, #{p.Nombre}
+              td.py-4.px-6.text-sm.text-gray-600= p.ObraSocial || 'Particular'
+              td.py-4.px-6.text-sm.text-gray-600= p.Telefono || '-'
+              td.py-4.px-6.text-sm.flex.gap-3
+                //- Botón para abrir el panel y Editar
+                button(onclick=`mostrarFormularioPaciente('${p.IdPaciente}', '${p.Dni}', '${p.Nombre}', '${p.Apellido}', '${p.Telefono || ''}', '${p.ObraSocial || ''}')` class="text-blue-600 font-bold hover:underline") Editar
+                //- Botón para ir a la Historia Clínica
+                a(href=`/historia-clinica?dni=${p.Dni}` class="text-gray-600 font-bold hover:underline") Historia
+        else
+          tr
+            td(colspan="5" class="py-8 text-center text-gray-500") No hay pacientes registrados en el sistema.
