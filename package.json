@@ -17,5 +17,14 @@
   "bugs": {
     "url": "https://github.com/Vitoan/his-hospital-system/issues"
   },
-  "homepage": "https://github.com/Vitoan/his-hospital-system#readme"
+  "homepage": "https://github.com/Vitoan/his-hospital-system#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.18.1",
+    "pug": "^3.0.3",
+    "sequelize": "^6.37.7"
+  }
 }
